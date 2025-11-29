@@ -71,8 +71,8 @@ class AnimatedCardStackView @JvmOverloads constructor(
             cardView.pivotX = cardWidth / 2f
             cardView.pivotY = cardHeight
 
-            // TODO: [Задание 1] Замените на метод, который анимирует движение карты
             cardView.rotation = targetRotation
+            cardView.animateToRotation(targetRotation)
         }
     }
 
