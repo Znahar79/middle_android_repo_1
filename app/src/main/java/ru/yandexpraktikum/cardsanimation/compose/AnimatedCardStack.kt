@@ -45,36 +45,36 @@ fun AnimatedCardStack(cards: List<CardData>) {
 
     Box(
         modifier = Modifier.pointerInput(Unit) {
-                detectDragGestures (onDragEnd = {
-                    if (!animationState.isAnimating) {
-                        val absHorizontal = abs(horizontalDragOffset)
-                        val absVertical = abs(verticalDragOffset)
+            detectDragGestures(onDragEnd = {
+                if (!animationState.isAnimating) {
+                    val absHorizontal = abs(horizontalDragOffset)
+                    val absVertical = abs(verticalDragOffset)
 
-                        if (absHorizontal > absVertical) {
-                            if (horizontalDragOffset > 0) {
-                                resultStack = reorderCards(resultStack)
-                            } else {
-                                resultStack = reorderCards(resultStack)
-                            }
+                    if (absHorizontal > absVertical) {
+                        if (horizontalDragOffset > 0) {
+                            resultStack = reorderCards(resultStack)
                         } else {
-                            if (verticalDragOffset > 0) {
-                                isRotated = false
-                            } else {
-                                isRotated = true
-                            }
+                            resultStack = reorderCards(resultStack)
                         }
-
-                        // Сброс значений для следующего жеста
-                        horizontalDragOffset = 0f
-                        verticalDragOffset = 0f
+                    } else {
+                        if (verticalDragOffset > 0) {
+                            isRotated = false
+                        } else {
+                            isRotated = true
+                        }
                     }
-                }) { _, dragAmount ->
-                    val (x, y) = dragAmount
 
-                    verticalDragOffset += y
-                    horizontalDragOffset += x
+                    // Сброс значений для следующего жеста
+                    horizontalDragOffset = 0f
+                    verticalDragOffset = 0f
                 }
-            },
+            }) { _, dragAmount ->
+                val (x, y) = dragAmount
+
+                verticalDragOffset += y
+                horizontalDragOffset += x
+            }
+        },
         contentAlignment = Alignment.Center
     ) {
         resultStack.forEachIndexed { i, cardData ->
@@ -84,7 +84,11 @@ fun AnimatedCardStack(cards: List<CardData>) {
                 AnimatedCard(
                     cardIndex = i,
                     targetRotation = targetRotation,
-                    cardData = cardData
+                    cardData = cardData,
+                    animationState = animationState,
+                    onAnimationStepComplete = { step ->
+                        // TODO: Implement method
+                    }
                     // TODO: [Задание 5] Здесь добавьте параметры анимации карты
                 )
             }
