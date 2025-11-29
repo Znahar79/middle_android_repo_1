@@ -30,7 +30,18 @@ fun AnimatedCard(
     animationState: CardSwapAnimationState,
     onAnimationStepComplete: ((Int) -> Unit)
 ) {
-    val cardAnimation by animateFloatAsState(targetRotation, animationSpec = tween(durationMillis = 600))
+    val rotationAnimation by animateFloatAsState(
+        targetValue = when {
+            animationState.animationStep == 3 -> targetRotation
+            animationState.isAnimating -> targetRotation
+            else -> targetRotation
+        },
+        animationSpec = tween(durationMillis = if (animationState.animationStep == 3) 300 else 800),
+        finishedListener = {
+            if (animationState.animationStep == 3 && animationState.isAnimating) onAnimationStepComplete.invoke(3)
+        },
+        label = "rotation"
+    )
     val density = LocalDensity.current
 
     val shouldBringToFront = animationState.isAnimating && animationState.animationStep >= 2
@@ -75,7 +86,7 @@ fun AnimatedCard(
         modifier = Modifier
             .size(width = 100.dp, height = 160.dp)
             .graphicsLayer {
-                rotationZ = cardAnimation
+                rotationZ = rotationAnimation
                 translationX = if (animationState.isAnimating) animatedTranslationX else 0f
                 translationY = if (animationState.isAnimating) animatedTranslationY else 0f
                 transformOrigin = TransformOrigin(0.5f, 1.0f)
@@ -97,5 +108,20 @@ fun AnimatedCard(
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
+    }
+}
+
+fun handleAnimationStepComplete(
+    step: Int,
+    cardIndex: Int,
+    onStepChange: (Int) -> Unit,
+    onAnimationComplete: () -> Unit
+) {
+    if (cardIndex == 0) {
+        when (step) {
+            1 -> onStepChange(2)
+            2 -> onStepChange(3)
+            3 -> onAnimationComplete()
+        }
     }
 }
