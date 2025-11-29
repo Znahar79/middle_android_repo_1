@@ -65,13 +65,11 @@ class AnimatedCardStackView @JvmOverloads constructor(
                 return when {
                     abs(diffX) > abs(diffY) && isHorizontalSwipeValid(diffX, velocityX) -> {
                         onSwipeHorizontal.invoke()
-                        invalidate()
                         true
                     }
 
                     abs(diffY) > abs(diffX) && isVerticalSwipeValid(diffY, velocityY) -> {
                         if (diffY > 0) onSwipeBottom.invoke() else onSwipeTop.invoke()
-                        invalidate()
                         true
                     }
 
@@ -136,7 +134,9 @@ class AnimatedCardStackView @JvmOverloads constructor(
             cardView.pivotX = cardWidth / 2f
             cardView.pivotY = cardHeight
 
-            cardView.rotation = targetRotation
+            val startRotation = if (isRotated) baseRotation else cardView.rotation
+
+            cardView.rotation = startRotation
             cardView.animateToRotation(targetRotation)
         }
     }

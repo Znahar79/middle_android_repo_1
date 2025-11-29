@@ -47,14 +47,10 @@ class AnimatedCardView @JvmOverloads constructor(
         stackView.cardElevation = (4 + index * 1).toFloat() * resources.displayMetrics.density
     }
 
-    // TODO: [Задание 1] Добавьте метод для анимации поворота карты (чтобы был плавный эффект раскрытия/закрытия колоды)
     fun animateToRotation(targetRotation: Float, duration: Long = 1000) {
-        if (stackView.rotation != targetRotation) {
-            ObjectAnimator.ofFloat(this, "rotation", rotation, targetRotation).apply {
-                this.duration = duration
-                interpolator = LinearInterpolator()
-                start()
-            }
+        ObjectAnimator.ofFloat(this, "rotation", rotation, targetRotation).apply {
+            this.duration = duration
+            start()
         }
     }
 
