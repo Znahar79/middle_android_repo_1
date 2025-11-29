@@ -38,52 +38,24 @@ data class CardSwapAnimationState(
     val animationStep: Int = 0
 )
 
+var verticalDragOffset = 0f
+var horizontalDragOffset = 0f
+
 @Composable
 fun AnimatedCardStack(cards: List<CardData>) {
     val cardCount = cards.size
     var resultStack by remember { mutableStateOf(cards) }
     var isRotated by remember { mutableStateOf(false) }
     var animationState by remember { mutableStateOf(CardSwapAnimationState()) }
-    var verticalDragOffset = 0f
-    var horizontalDragOffset = 0f
 
     Box(
         modifier = Modifier.pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = {
-                        /*if (!animationState.isAnimating) {
-                            val threshold = 100f
-                            val isVerticalDominant = abs(verticalDragOffset) > abs(horizontalDragOffset)
-                            val isHorizontalDominant = abs(horizontalDragOffset) > abs(verticalDragOffset)
+                detectDragGestures (onDragEnd = {
+                    val absHorizontal = abs(horizontalDragOffset)
+                    val absVertical = abs(verticalDragOffset)
 
-                            when {
-                                isVerticalDominant && abs(verticalDragOffset) > threshold -> {
-                                    handleVerticalSwipe(
-                                        verticalDragDistance = verticalDragOffset,
-                                        onFanStateChange = { newFanState -> isRotated = newFanState }
-                                    )
-                                }
-                                isHorizontalDominant && abs(horizontalDragOffset) > threshold -> {
-                                    handleHorizontalSwipe(
-                                        horizontalDragDistance = horizontalDragOffset,
-                                        onCardsReorder = {
-                                            // TODO: Заменить анимированной версией в следующих этапах
-                                            currentCards = reorderCards(currentCards)
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        verticalDragOffset = 0f
-                        horizontalDragOffset = 0f*/
-                    }
-                ) { _, dragAmount ->
-                    val (x, y) = dragAmount
-                    verticalDragOffset = x
-                    horizontalDragOffset = y
-
-                    if (abs(x) > abs(y)) {
-                        if (x > 0) {
+                    if (absHorizontal > absVertical) {
+                        if (horizontalDragOffset > 0) {
                             println("Свайп вправо")
                             resultStack = reorderCards(resultStack)
                         } else {
@@ -91,14 +63,23 @@ fun AnimatedCardStack(cards: List<CardData>) {
                             resultStack = reorderCards(resultStack)
                         }
                     } else {
-                        if (y > 0) {
-                            isRotated = false
+                        if (verticalDragOffset > 0) {
                             println("Свайп вниз")
+                            isRotated = false
                         } else {
                             println("Свайп вверх")
                             isRotated = true
                         }
                     }
+
+                    // Сброс значений для следующего жеста
+                    horizontalDragOffset = 0f
+                    verticalDragOffset = 0f
+                }) { _, dragAmount ->
+                    val (x, y) = dragAmount
+
+                    verticalDragOffset += y
+                    horizontalDragOffset += x
                 }
             },
         contentAlignment = Alignment.Center
