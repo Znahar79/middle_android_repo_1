@@ -48,7 +48,7 @@ fun AnimatedCard(
 
     val animatedTranslationX by animateFloatAsState(
         targetValue = when {
-            animationState.isAnimating && animationState.animationStep == 1 -> {
+            animationState.isAnimating &&  animationState.animationStep == 1 -> {
                 val moveDistance = with(density) { 50.dp.toPx() }
                 val rotationRad = Math.toRadians(targetRotation.toDouble())
                 moveDistance * cos(rotationRad).toFloat()
@@ -62,6 +62,7 @@ fun AnimatedCard(
                 when (animationState.animationStep) {
                     1 -> onAnimationStepComplete.invoke(1)
                     2 -> onAnimationStepComplete.invoke(2)
+                    3 ->  onAnimationStepComplete.invoke(3)
                 }
             }
         },
@@ -108,20 +109,5 @@ fun AnimatedCard(
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
-    }
-}
-
-fun handleAnimationStepComplete(
-    step: Int,
-    cardIndex: Int,
-    onStepChange: (Int) -> Unit,
-    onAnimationComplete: () -> Unit
-) {
-    if (cardIndex == 0) {
-        when (step) {
-            1 -> onStepChange(2)
-            2 -> onStepChange(3)
-            3 -> onAnimationComplete()
-        }
     }
 }

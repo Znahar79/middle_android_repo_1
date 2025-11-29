@@ -51,11 +51,8 @@ fun AnimatedCardStack(cards: List<CardData>) {
                     val absVertical = abs(verticalDragOffset)
 
                     if (absHorizontal > absVertical) {
-                        if (horizontalDragOffset > 0) {
-                            resultStack = reorderCards(resultStack)
-                        } else {
-                            resultStack = reorderCards(resultStack)
-                        }
+                        resultStack = reorderCards(resultStack)
+                        animationState = CardSwapAnimationState(true, 1)
                     } else {
                         if (verticalDragOffset > 0) {
                             isRotated = false
@@ -64,7 +61,6 @@ fun AnimatedCardStack(cards: List<CardData>) {
                         }
                     }
 
-                    // Сброс значений для следующего жеста
                     horizontalDragOffset = 0f
                     verticalDragOffset = 0f
                 }
@@ -87,9 +83,31 @@ fun AnimatedCardStack(cards: List<CardData>) {
                     cardData = cardData,
                     animationState = animationState,
                     onAnimationStepComplete = { step ->
-                        // TODO: Implement method
+                        handleAnimationStepComplete(
+                            step,
+                            i,
+                            { step ->
+                                val isAnimating = animationState.animationStep > 0
+                                animationState = if (animationState.animationStep == 3) {
+                                    //resultStack = reorderCards(cards = cards)
+                                    CardSwapAnimationState()
+                                } else if (animationState.animationStep == 0) {
+                                    animationState.copy(
+                                        animationStep = 1,
+                                        isAnimating = true
+                                    )
+                                } else {
+                                    animationState.copy(
+                                        animationStep = step,
+                                        isAnimating = isAnimating
+                                    )
+                                }
+                            }, {
+                                animationState = CardSwapAnimationState()
+                            }
+                        )
                     }
-                    // TODO: [Задание 5] Здесь добавьте параметры анимации карты
+
                 )
             }
         }
@@ -99,4 +117,19 @@ fun AnimatedCardStack(cards: List<CardData>) {
 // Простая функция перестановки карт
 fun reorderCards(cards: List<CardData>): List<CardData> {
     return cards.drop(1) + cards.first()
+}
+
+fun handleAnimationStepComplete(
+    step: Int,
+    cardIndex: Int,
+    onStepChange: (Int) -> Unit,
+    onAnimationComplete: () -> Unit
+) {
+    if (cardIndex == 0) {
+        when (step) {
+            1 -> onStepChange(2)
+            2 -> onStepChange(3)
+            3 -> onAnimationComplete()
+        }
+    }
 }
