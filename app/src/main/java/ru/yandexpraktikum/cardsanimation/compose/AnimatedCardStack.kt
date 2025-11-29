@@ -33,11 +33,6 @@ fun calculateCardRotation(
     }
 }
 
-data class CardSwapAnimationState(
-    val isAnimating: Boolean = false,
-    val animationStep: Int = 0
-)
-
 var verticalDragOffset = 0f
 var horizontalDragOffset = 0f
 
@@ -51,30 +46,28 @@ fun AnimatedCardStack(cards: List<CardData>) {
     Box(
         modifier = Modifier.pointerInput(Unit) {
                 detectDragGestures (onDragEnd = {
-                    val absHorizontal = abs(horizontalDragOffset)
-                    val absVertical = abs(verticalDragOffset)
+                    if (!animationState.isAnimating) {
+                        val absHorizontal = abs(horizontalDragOffset)
+                        val absVertical = abs(verticalDragOffset)
 
-                    if (absHorizontal > absVertical) {
-                        if (horizontalDragOffset > 0) {
-                            println("Свайп вправо")
-                            resultStack = reorderCards(resultStack)
+                        if (absHorizontal > absVertical) {
+                            if (horizontalDragOffset > 0) {
+                                resultStack = reorderCards(resultStack)
+                            } else {
+                                resultStack = reorderCards(resultStack)
+                            }
                         } else {
-                            println("Свайп влево")
-                            resultStack = reorderCards(resultStack)
+                            if (verticalDragOffset > 0) {
+                                isRotated = false
+                            } else {
+                                isRotated = true
+                            }
                         }
-                    } else {
-                        if (verticalDragOffset > 0) {
-                            println("Свайп вниз")
-                            isRotated = false
-                        } else {
-                            println("Свайп вверх")
-                            isRotated = true
-                        }
+
+                        // Сброс значений для следующего жеста
+                        horizontalDragOffset = 0f
+                        verticalDragOffset = 0f
                     }
-
-                    // Сброс значений для следующего жеста
-                    horizontalDragOffset = 0f
-                    verticalDragOffset = 0f
                 }) { _, dragAmount ->
                     val (x, y) = dragAmount
 
