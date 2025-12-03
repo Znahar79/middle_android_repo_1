@@ -172,7 +172,8 @@ class AnimatedCardStackView @JvmOverloads constructor(
 
     private fun bringCardToFront(card: AnimatedCardView) {
         card.bringToFront()
-        val maxElevation = (4 + cards.size + 20).toFloat() * resources.displayMetrics.density
+        val elevationOffset = 24
+        val maxElevation = (cards.size + elevationOffset).toFloat() * resources.displayMetrics.density
         card.stackView.cardElevation = maxElevation
     }
 

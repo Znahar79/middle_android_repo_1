@@ -33,15 +33,15 @@ fun calculateCardRotation(
     }
 }
 
-var verticalDragOffset = 0f
-var horizontalDragOffset = 0f
-
 @Composable
 fun AnimatedCardStack(cards: List<CardData>) {
     val cardCount = cards.size
     var resultStack by remember { mutableStateOf(cards) }
     var isRotated by remember { mutableStateOf(false) }
     var animationState by remember { mutableStateOf(CardSwapAnimationState()) }
+
+    var verticalDragOffset = 0f
+    var horizontalDragOffset = 0f
 
     Box(
         modifier = Modifier.pointerInput(Unit) {
@@ -52,7 +52,7 @@ fun AnimatedCardStack(cards: List<CardData>) {
 
                     if (absHorizontal > absVertical) {
                         resultStack = reorderCards(resultStack)
-                        animationState = CardSwapAnimationState(true, 1)
+                        animationState = CardSwapAnimationState(true, AnimationPhase.PHASE_ONE)
                     } else {
                         if (verticalDragOffset > 0) {
                             isRotated = false
@@ -87,20 +87,23 @@ fun AnimatedCardStack(cards: List<CardData>) {
                             step,
                             i,
                             { step ->
-                                val isAnimating = animationState.animationStep > 0
-                                animationState = if (animationState.animationStep == 3) {
-                                    //resultStack = reorderCards(cards = cards)
-                                    CardSwapAnimationState()
-                                } else if (animationState.animationStep == 0) {
-                                    animationState.copy(
-                                        animationStep = 1,
-                                        isAnimating = true
-                                    )
-                                } else {
-                                    animationState.copy(
-                                        animationStep = step,
-                                        isAnimating = isAnimating
-                                    )
+                                val isAnimating = animationState.animationStep > AnimationPhase.IDLE
+                                animationState = when (animationState.animationStep) {
+                                    AnimationPhase.PHASE_THREE -> {
+                                        CardSwapAnimationState()
+                                    }
+                                    AnimationPhase.IDLE -> {
+                                        animationState.copy(
+                                            animationStep = AnimationPhase.PHASE_ONE,
+                                            isAnimating = true
+                                        )
+                                    }
+                                    else -> {
+                                        animationState.copy(
+                                            animationStep = step,
+                                            isAnimating = isAnimating
+                                        )
+                                    }
                                 }
                             }, {
                                 animationState = CardSwapAnimationState()
@@ -120,16 +123,16 @@ fun reorderCards(cards: List<CardData>): List<CardData> {
 }
 
 fun handleAnimationStepComplete(
-    step: Int,
+    step: AnimationPhase,
     cardIndex: Int,
-    onStepChange: (Int) -> Unit,
+    onStepChange: (AnimationPhase) -> Unit,
     onAnimationComplete: () -> Unit
 ) {
     if (cardIndex == 0) {
         when (step) {
-            1 -> onStepChange(2)
-            2 -> onStepChange(3)
-            3 -> onAnimationComplete()
+            AnimationPhase.PHASE_ONE -> onStepChange(AnimationPhase.PHASE_TWO)
+            AnimationPhase.PHASE_TWO -> onAnimationComplete()
+            else -> {}
         }
     }
 }
